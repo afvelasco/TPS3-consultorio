@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo paciente</title>
+</head>
+<body>
+    <h4>Digite los datos del nuevo paciente:</h4><br>
+    <form action="/guardapaciente" method="post">
+        <label for="id">Id paciente: </label>
+        <input type="text" required name="id"><br>
+        <label for="nom">Nombre: </label>
+        <input type="text" required name="nom"><br>
+        <label for="cel">Celular: </label>
+        <input type="text" name="cel"><br><br>
+        <button>Guardar</button> <br>
+        <h3>{{msg}}</h3>
+    </form>
+</body>
+</html>

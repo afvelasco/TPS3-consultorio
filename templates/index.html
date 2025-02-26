@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingreso a la aplicación</title>
+</head>
+<body>
+    <h3>POR FAVOR INGRESE SUS CREDENCIALES</h3><br><br>
+    <form action="/login" method="post">
+        <label for="id">Usuario: </label>
+        <input type="text" name="id" required><br>
+        <label for="contra">Contraseña: </label>
+        <input type="password" name="contra" required><br><br>
+        <button>Ingresar</button>
+    </form>
+    <br><br>
+    <h3>{{msg}}</h3>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de pacientes</title>
+</head>
+<body>
+    <h3>Gestión de pacientes</h3><br>
+    <a href="/nuevopaciente">Agregar un paciente nuevo</a>
+    <table border="">
+        <thead>
+            <td>Id</td>
+            <td>Nombre</td>
+            <td>Celular</td>
+            <td>Foto</td>
+            <td>Operaciones</td>
+        </thead>
+        <tbody>
+            {% for p in paci %}
+            <tr>
+                <td>{{p[0]}}</td>
+                <td>{{p[1]}}</td>
+                <td>{{p[2]}}</td>
+                <td>{{p[3]}}</td>
+                <td>
+                    <a href="/editapaciente/{{p[0]}}">Editar</a>
+                    <a href="/borrapaciente">Borrar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
