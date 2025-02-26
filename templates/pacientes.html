@@ -25,7 +25,7 @@
                 <td>{{p[3]}}</td>
                 <td>
                     <a href="/editapaciente/{{p[0]}}">Editar</a>
-                    <a href="/borrapaciente">Borrar</a>
+                    <a onclick="return confirm('¿Seguro elimina este paciente?')" href="/borrapaciente/{{p[0]}}">Borrar</a>
                 </td>
             </tr>
             {% endfor %}

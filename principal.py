@@ -31,7 +31,7 @@ def login():
 @principal.route("/pacientes")
 def pacientes():
     cursor = mi_DB.cursor()
-    sql = "SELECT * FROM pacientes"
+    sql = "SELECT * FROM pacientes WHERE borrado=0"
     cursor.execute(sql)
     pacientes = cursor.fetchall()
     return render_template("pacientes.html", paci = pacientes)
@@ -64,6 +64,15 @@ def editapaciente(id):
     cursor.execute(sql)
     resultado = cursor.fetchall()
     return render_template("editarpaciente.html", paci = resultado[0])
+
+@principal.route("/borrapaciente/<id>")
+def borrapaciente(id):
+    cursor = mi_DB.cursor()
+    sql = f"UPDATE pacientes SET borrado=1 WHERE id_paciente='{id}'"
+    cursor.execute(sql)
+    mi_DB.commit()
+    return redirect("/pacientes")
+
 
 if __name__=="__main__":
     principal.run(host="0.0.0.0", port=9090, debug=True)
