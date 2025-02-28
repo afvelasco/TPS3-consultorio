@@ -1,4 +1,6 @@
-from flask import Flask, redirect, render_template, request
+from datetime import datetime
+import os
+from flask import Flask, redirect, render_template, request, send_from_directory
 import mysql.connector
 import hashlib
 
@@ -8,7 +10,11 @@ mi_DB = mysql.connector.connect(host="localhost",
                                 user="root",
                                 password="",
                                 database="proyecto")
+principal.config['CARPETAU'] = os.path.join('uploads')
 
+@principal.route("/uploads/<nombre>")
+def uploads(nombre):
+    return send_from_directory(principal.config['CARPETAU'],nombre)
 
 @principal.route("/")
 def index():
@@ -45,12 +51,18 @@ def guardapaciente():
     id = request.form['id']
     nom = request.form['nom']
     cel = request.form['cel']
+    foto = request.files['foto']
+    ahora = datetime.now()
+    tiempo = ahora.strftime("%Y%m%d%H%M%S")
+    nombre,extension = os.path.splitext(foto.filename)
+    nuevonombre = "P" + tiempo + extension
+    foto.save("uploads/"+nuevonombre)
     cursor = mi_DB.cursor()
     sql = f"SELECT nombre FROM pacientes WHERE id_paciente='{id}'"
     cursor.execute(sql)
     resultado = cursor.fetchall()
     if len(resultado) == 0:
-        sql = f"INSERT INTO pacientes (id_paciente,nombre,celular) VALUES ('{id}','{nom}','{cel}')"
+        sql = f"INSERT INTO pacientes (id_paciente,nombre,celular,foto) VALUES ('{id}','{nom}','{cel}','{nuevonombre}')"
         cursor.execute(sql)
         mi_DB.commit()
         return redirect("/pacientes")
