@@ -7,13 +7,15 @@
 </head>
 <body>
     <h4>Editar los datos de un paciente:</h4><br>
-    <form action="/confirmapaciente" method="post">
+    <form action="/confirmapaciente" method="post" enctype="multipart/form-data">
         <label for="id">Id paciente: </label>
         <input type="text" value="{{paci[0]}}" readonly name="id"><br>
         <label for="nom">Nombre: </label>
         <input type="text" value="{{paci[1]}}" required name="nom"><br>
         <label for="cel">Celular: </label>
-        <input type="text" value="{{paci[2]}}" name="cel"><br><br>
+        <input type="text" value="{{paci[2]}}" name="cel"><br>
+        <label for="foto">Foto: </label>
+        <input type="file" name="foto"><br><br>
         <button>Guardar</button> <br>
         <h3>{{msg}}</h3>
     </form>

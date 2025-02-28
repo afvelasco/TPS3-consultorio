@@ -52,16 +52,16 @@ def guardapaciente():
     nom = request.form['nom']
     cel = request.form['cel']
     foto = request.files['foto']
-    ahora = datetime.now()
-    tiempo = ahora.strftime("%Y%m%d%H%M%S")
-    nombre,extension = os.path.splitext(foto.filename)
-    nuevonombre = "P" + tiempo + extension
-    foto.save("uploads/"+nuevonombre)
     cursor = mi_DB.cursor()
     sql = f"SELECT nombre FROM pacientes WHERE id_paciente='{id}'"
     cursor.execute(sql)
     resultado = cursor.fetchall()
     if len(resultado) == 0:
+        ahora = datetime.now()
+        tiempo = ahora.strftime("%Y%m%d%H%M%S")
+        nombre,extension = os.path.splitext(foto.filename)
+        nuevonombre = "P" + tiempo + extension
+        foto.save("uploads/"+nuevonombre)
         sql = f"INSERT INTO pacientes (id_paciente,nombre,celular,foto) VALUES ('{id}','{nom}','{cel}','{nuevonombre}')"
         cursor.execute(sql)
         mi_DB.commit()
@@ -76,6 +76,31 @@ def editapaciente(id):
     cursor.execute(sql)
     resultado = cursor.fetchall()
     return render_template("editarpaciente.html", paci = resultado[0])
+
+@principal.route("/confirmapaciente", methods=['POST'])
+def confirmapaciente():
+    id = request.form['id']
+    nom = request.form['nom']
+    cel = request.form['cel']
+    foto = request.files['foto']
+    mi_cursor = mi_DB.cursor()
+    if foto.filename!="":
+        sql = f"SELECT foto FROM pacientes WHERE id_paciente='{id}'"
+        mi_cursor.execute(sql)
+        nombre = mi_cursor.fetchall()[0][0]
+        os.remove(os.path.join(principal.config['CARPETAU'],nombre))
+        ahora = datetime.now()
+        tiempo = ahora.strftime("%Y%m%d%H%M%S")
+        nombre,extension = os.path.splitext(foto.filename)
+        nuevonombre = "P" + tiempo + extension
+        foto.save("uploads/"+nuevonombre)
+        sql = f"UPDATE pacientes SET foto='{nuevonombre}' WHERE id_paciente='{id}'"
+        mi_cursor.execute(sql)
+        mi_DB.commit()
+    sql = f"UPDATE pacientes SET nombre='{nom}', celular='{cel}' WHERE id_paciente='{id}'"
+    mi_cursor.execute(sql)
+    mi_DB.commit()
+    return redirect("/pacientes")
 
 @principal.route("/borrapaciente/<id>")
 def borrapaciente(id):
