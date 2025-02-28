@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
-from flask import Flask, redirect, render_template, request, send_from_directory
+from random import randint
+from flask import Flask, redirect, render_template, request, send_from_directory, session
 import mysql.connector
 import hashlib
 
@@ -11,6 +12,9 @@ mi_DB = mysql.connector.connect(host="localhost",
                                 password="",
                                 database="proyecto")
 principal.config['CARPETAU'] = os.path.join('uploads')
+principal.secret_key = str(randint(10000,99999))
+principal.config["PERMANENT_SESSION_LIFETIME"] = timedelta(seconds=10)
+
 
 @principal.route("/uploads/<nombre>")
 def uploads(nombre):
@@ -30,9 +34,21 @@ def login():
     cursor.execute(sql)
     resultado = cursor.fetchall()
     if len(resultado)>0:
-        return render_template("opciones.html",msg = "Bienvenido "+resultado[0][0])
+        session["login"] = True
+        session["id"] = id
+        session["nombre"] = resultado[0][0]
+        return redirect("/opciones")
     else:
         return render_template("index.html",msg = "Credenciales incorrectas")
+
+@principal.route("/opciones")
+def opciones():
+    if session.get('login') == True:
+        nom=session.get('nombre')
+        return render_template("opciones.html", msg="Bienvenido(a) "+nom)
+    else:
+        return redirect("/")
+
 
 @principal.route("/pacientes")
 def pacientes():
