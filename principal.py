@@ -13,8 +13,7 @@ mi_DB = mysql.connector.connect(host="localhost",
                                 database="proyecto")
 principal.config['CARPETAU'] = os.path.join('uploads')
 principal.secret_key = str(randint(10000,99999))
-principal.config["PERMANENT_SESSION_LIFETIME"] = timedelta(seconds=10)
-
+principal.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 @principal.route("/uploads/<nombre>")
 def uploads(nombre):
@@ -52,15 +51,21 @@ def opciones():
 
 @principal.route("/pacientes")
 def pacientes():
-    cursor = mi_DB.cursor()
-    sql = "SELECT * FROM pacientes WHERE borrado=0"
-    cursor.execute(sql)
-    pacientes = cursor.fetchall()
-    return render_template("pacientes.html", paci = pacientes)
+    if session.get('login') == True:
+        cursor = mi_DB.cursor()
+        sql = "SELECT * FROM pacientes WHERE borrado=0"
+        cursor.execute(sql)
+        pacientes = cursor.fetchall()
+        return render_template("pacientes.html", paci = pacientes)
+    else:
+        return redirect("/")
 
 @principal.route("/nuevopaciente")
 def nuevopaciente():
-    return render_template("nuevopaciente.html")
+    if session.get('login') == True:
+        return render_template("nuevopaciente.html")
+    else:
+        return redirect("/")
 
 @principal.route("/guardapaciente", methods=["POST"])
 def guardapaciente():
@@ -87,11 +92,14 @@ def guardapaciente():
 
 @principal.route("/editapaciente/<id>")
 def editapaciente(id):
-    cursor = mi_DB.cursor()
-    sql = f"SELECT * FROM pacientes WHERE id_paciente='{id}'"
-    cursor.execute(sql)
-    resultado = cursor.fetchall()
-    return render_template("editarpaciente.html", paci = resultado[0])
+    if session.get('login') == True:
+        cursor = mi_DB.cursor()
+        sql = f"SELECT * FROM pacientes WHERE id_paciente='{id}'"
+        cursor.execute(sql)
+        resultado = cursor.fetchall()
+        return render_template("editarpaciente.html", paci = resultado[0])
+    else:
+        return redirect("/")
 
 @principal.route("/confirmapaciente", methods=['POST'])
 def confirmapaciente():
@@ -120,11 +128,14 @@ def confirmapaciente():
 
 @principal.route("/borrapaciente/<id>")
 def borrapaciente(id):
-    cursor = mi_DB.cursor()
-    sql = f"UPDATE pacientes SET borrado=1 WHERE id_paciente='{id}'"
-    cursor.execute(sql)
-    mi_DB.commit()
-    return redirect("/pacientes")
+    if session.get('login') == True:
+        cursor = mi_DB.cursor()
+        sql = f"UPDATE pacientes SET borrado=1 WHERE id_paciente='{id}'"
+        cursor.execute(sql)
+        mi_DB.commit()
+        return redirect("/pacientes")
+    else:
+        return redirect("/")
 
 
 if __name__=="__main__":
