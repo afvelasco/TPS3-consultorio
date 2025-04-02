@@ -23,7 +23,7 @@ class Pacientes:
         mi_cursor.execute(sql)
         mi_DB.commit()
 
-    def borra(id):
+    def borra(self, id):
         sql = f"UPDATE pacientes SET borrado=1 WHERE id_paciente='{id}'"
         mi_cursor.execute(sql)
         mi_DB.commit()
