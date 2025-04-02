@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de usuarios</title>
+</head>
+<body>
+    <h3>Gestión de usuarios</h3><br>
+    <a href="/nuevousuario">Agregar un paciente nuevo</a>
+    <table border="">
+        <thead>
+            <td>Id</td>
+            <td>Nombre</td>
+            <td>Email</td>
+            <td>Operaciones</td>
+        </thead>
+        <tbody>
+            {% for u in usua %}
+            <tr>
+                <td>{{u[0]}}</td>
+                <td>{{u[1]}}</td>
+                <td>{{u[3]}}</td>
+                <td>
+                    <a href="/editausuario/{{u[0]}}">Editar |</a>
+                    <a onclick="return confirm('¿Seguro elimina este usuario?')" href="/borrausuario/{{u[0]}}">Borrar |</a>
+                    <a href="/enviacorreo">Enviar Email</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

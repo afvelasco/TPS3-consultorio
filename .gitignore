@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-consultorio-ven/
+consultorio-venv/
 *.py[cod]
 *$py.class
 

@@ -1,20 +1,5 @@
-from datetime import datetime, timedelta
-import os
-from random import randint
-from flask import Flask, redirect, render_template, request, send_from_directory, session
-import mysql.connector
-import hashlib
-
-principal = Flask(__name__)
-mi_DB = mysql.connector.connect(host="localhost",
-                                port="3306",
-                                user="root",
-                                password="",
-                                database="proyecto")
-principal.config['CARPETAU'] = os.path.join('uploads')
-principal.secret_key = str(randint(10000,99999))
-principal.config["PERMANENT_SESSION_LIFETIME"] = timedelta(seconds=10)
-
+from conexion import *
+from models.pacientes import mi_pacientes
 
 @principal.route("/uploads/<nombre>")
 def uploads(nombre):
@@ -49,18 +34,20 @@ def opciones():
     else:
         return redirect("/")
 
-
 @principal.route("/pacientes")
 def pacientes():
-    cursor = mi_DB.cursor()
-    sql = "SELECT * FROM pacientes WHERE borrado=0"
-    cursor.execute(sql)
-    pacientes = cursor.fetchall()
-    return render_template("pacientes.html", paci = pacientes)
-
+    if session.get('login') == True:
+        pacientes = mi_pacientes.consulta()
+        return render_template("pacientes.html", paci = pacientes)
+    else:
+        return redirect("/")
+    
 @principal.route("/nuevopaciente")
 def nuevopaciente():
-    return render_template("nuevopaciente.html")
+    if session.get('login') == True:
+        return render_template("nuevopaciente.html")
+    else:
+        return redirect("/")
 
 @principal.route("/guardapaciente", methods=["POST"])
 def guardapaciente():
@@ -68,29 +55,21 @@ def guardapaciente():
     nom = request.form['nom']
     cel = request.form['cel']
     foto = request.files['foto']
-    cursor = mi_DB.cursor()
-    sql = f"SELECT nombre FROM pacientes WHERE id_paciente='{id}'"
-    cursor.execute(sql)
-    resultado = cursor.fetchall()
+    resultado = mi_pacientes.busca(id)
     if len(resultado) == 0:
         ahora = datetime.now()
         tiempo = ahora.strftime("%Y%m%d%H%M%S")
         nombre,extension = os.path.splitext(foto.filename)
         nuevonombre = "P" + tiempo + extension
         foto.save("uploads/"+nuevonombre)
-        sql = f"INSERT INTO pacientes (id_paciente,nombre,celular,foto) VALUES ('{id}','{nom}','{cel}','{nuevonombre}')"
-        cursor.execute(sql)
-        mi_DB.commit()
+        mi_pacientes.agrega([id,nom,cel,nuevonombre])
         return redirect("/pacientes")
     else:
         return render_template("nuevopaciente.html", msg="Id ya existe")
 
 @principal.route("/editapaciente/<id>")
 def editapaciente(id):
-    cursor = mi_DB.cursor()
-    sql = f"SELECT * FROM pacientes WHERE id_paciente='{id}'"
-    cursor.execute(sql)
-    resultado = cursor.fetchall()
+    resultado = mi_pacientes.busca(id)
     return render_template("editarpaciente.html", paci = resultado[0])
 
 @principal.route("/confirmapaciente", methods=['POST'])
@@ -99,33 +78,31 @@ def confirmapaciente():
     nom = request.form['nom']
     cel = request.form['cel']
     foto = request.files['foto']
-    mi_cursor = mi_DB.cursor()
+    nombre = mi_pacientes.busca(id)[0][3]
     if foto.filename!="":
-        sql = f"SELECT foto FROM pacientes WHERE id_paciente='{id}'"
-        mi_cursor.execute(sql)
-        nombre = mi_cursor.fetchall()[0][0]
         os.remove(os.path.join(principal.config['CARPETAU'],nombre))
         ahora = datetime.now()
         tiempo = ahora.strftime("%Y%m%d%H%M%S")
         nombre,extension = os.path.splitext(foto.filename)
         nuevonombre = "P" + tiempo + extension
         foto.save("uploads/"+nuevonombre)
-        sql = f"UPDATE pacientes SET foto='{nuevonombre}' WHERE id_paciente='{id}'"
-        mi_cursor.execute(sql)
-        mi_DB.commit()
-    sql = f"UPDATE pacientes SET nombre='{nom}', celular='{cel}' WHERE id_paciente='{id}'"
-    mi_cursor.execute(sql)
-    mi_DB.commit()
+    else:
+        nuevonombre = nombre
+    mi_pacientes.actualiza([id,nom,cel,nuevonombre])
     return redirect("/pacientes")
 
 @principal.route("/borrapaciente/<id>")
 def borrapaciente(id):
-    cursor = mi_DB.cursor()
-    sql = f"UPDATE pacientes SET borrado=1 WHERE id_paciente='{id}'"
-    cursor.execute(sql)
-    mi_DB.commit()
+    mi_pacientes.borra(id)
     return redirect("/pacientes")
 
+@principal.route("/usuarios")
+def usuarios():
+    cursor = mi_DB.cursor()
+    sql = "SELECT * FROM usuarios WHERE borrado=0"
+    cursor.execute(sql)
+    usuarios = cursor.fetchall()
+    return render_template("usuarios.html", usua = usuarios)
 
 if __name__=="__main__":
     principal.run(host="0.0.0.0", port=9090, debug=True)
