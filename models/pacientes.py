@@ -8,7 +8,7 @@ class Pacientes:
         return pacientes
 
     def busca(self, id):
-        sql = f"SELECT * FROM pacientes WHERE id_paciente='{id}'"
+        sql = f"SELECT * FROM pacientes WHERE id_paciente='{id} and borrado=0'"
         mi_cursor.execute(sql)
         resultado = mi_cursor.fetchall()
         return resultado

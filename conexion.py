@@ -4,6 +4,9 @@ from random import randint
 from flask import Flask, redirect, render_template, request, send_from_directory, session
 import mysql.connector
 import hashlib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
 principal = Flask(__name__)
 mi_DB = mysql.connector.connect(host="localhost",

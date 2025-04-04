@@ -16,6 +16,16 @@ def login():
 
 @principal.route("/usuarios")
 def usuarios():
-    usuarios = mi_usuarios.consulta()
-    return render_template("usuarios.html", usua = usuarios)
+    if session.get("login")==True:
+        usuarios = mi_usuarios.consulta()
+        return render_template("usuarios.html", usua = usuarios)
+    else:
+        redirect("/")
 
+@principal.route("/enviacorreo/<id>")
+def enviacorreo(id):
+    if session.get("login")==True:
+        mi_usuarios.enviacorreo(id)
+        return redirect("/usuario")
+    else:
+        return redirect("/")
